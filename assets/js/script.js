@@ -19,8 +19,8 @@ class Voiture {
     constructor(marque, modele, kilometrage, annee, immatriculation) {
         this.marque = marque;
         this.modele = modele;
-        this.kilometrage = kilometrage;
-        this.annee = annee;
+        this.kilometrage = parseInt(kilometrage, 10);
+        this.annee = parseInt(annee, 10);
         this.immatriculation = immatriculation;
     }
 
@@ -44,6 +44,7 @@ const enterBtn = document.getElementById("enterBtn");
 
 /**
  * Récupérer la liste des voitures garées dans le parking (depuis localStorage)
+ * @returns {Array} La liste des voitures garées dans le parking
  */
 function getVoitureList() {
     const storedVoiture = localStorage.getItem('voitureList');
@@ -63,8 +64,8 @@ if (form) {
     form.addEventListener("submit", function(e) {
         e.preventDefault();
 
-        const debut = new Date();
-        console.log(debut); // Exemple: Thu Oct 10 2024 11:33:29 GMT+0200 (heure d’été d’Europe centrale)
+        const debut = new Date(); // Enregistre date/heure d'entrée dans le parking
+        // console.log(debut); // Exemple: Thu Oct 10 2024 11:33:29 GMT+0200 (heure d’été d’Europe centrale)
 
         const immatriculation = document.getElementById("licencePlate").value;
 
@@ -72,12 +73,23 @@ if (form) {
             return;
         }
 
-        const voiture = { immatriculation, debut };
-
         const voitureList = getVoitureList();
-        voitureList.push(voiture); // Ajout de la nouvelle voiture à la liste
+        
+        // Vérifier si l'immatriculation existe déjà
+        if (voitureList.some(v => v.immatriculation === immatriculation)) {
+            alertBox.textContent = `La voiture immatriculée ${immatriculation} est déjà dans le parking !`;
+            alertBox.style.display = "block";
+            
+            setTimeout(function () {
+                alertBox.style.display = "none";
+            }, 5000);
+            
+            return;
+        }
 
-        setVoitureList(voitureList); // Sauvegarder la nouvelle liste dans localStorage
+        const voiture = { immatriculation, debut };
+        voitureList.push(voiture); // Ajoute la voiture au tableau
+        setVoitureList(voitureList); // Sauvegarde le tableau mis à jour dans le localStorage
 
         form.reset(); // Réinitialiser le formulaire
 
@@ -97,14 +109,14 @@ if (form) {
  */
 function payer() {
     const voitureList = getVoitureList();
-    const fin = new Date();
+    const fin = new Date(); // Enregistre date/heure de sortie du parking
     const immatriculation = document.getElementById("licencePlate").value;
 
     if (!immatriculation) {
         return;
     }
 
-    const voiture = voitureList.find(v => v.immatriculation === immatriculation);
+    const voiture = voitureList.find(v => v.immatriculation === immatriculation); // find() parcourt le tableau et retourne le premier élément qui satisfait la condition donnée
 
     if (!voiture) {
         alertBox.textContent = "Aucune voiture trouvée";
@@ -117,8 +129,8 @@ function payer() {
         return;
     }
 
-    const debut = new Date(voiture.debut);
-    const dureeMinutes = (fin - debut) / (1000 * 60);
+    const debut = new Date(voiture.debut); // Récupération de date/heure existante
+    const dureeMinutes = Math.round((fin - debut) / (1000 * 60));
     let prix;
 
     if (dureeMinutes <= 15) {
