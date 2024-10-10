@@ -1,0 +1,15 @@
+
+#successBox,
+#alertBox,
+#messageBox {
+    display: none;
+}
+
+.card {
+    padding: 15px;
+}
+
+.card-title {
+    text-align: center;
+    font: 1.1rem sans-serif;
+}
